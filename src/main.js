@@ -7,8 +7,8 @@ import { createGalleryMarkup } from './js/render-functions';
 
 const refs = {
   galleryEl: document.querySelector('.gallery'),
-  inputEl: document.querySelector('.controller-input'),
-  formEl: document.querySelector('.controller'),
+  inputEl: document.querySelector('.form-input'),
+  formEl: document.querySelector('.form'),
   loaderEl: document.querySelector('.loader'),
 };
 

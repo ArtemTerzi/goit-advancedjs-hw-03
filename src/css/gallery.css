@@ -3,14 +3,14 @@
   padding: 8px 16px;
 }
 
-.controller {
+.form {
   display: flex;
   justify-content: center;
   gap: 8px;
   margin-bottom: 32px;
 }
 
-.controller-input {
+.form-input {
   border: 1px solid #808080;
   border-radius: 4px;
   width: 272px;
@@ -24,22 +24,22 @@
   transition: all 250ms ease-in-out;
 }
 
-.controller-input:hover {
+.form-input:hover {
   border-color: black;
 }
 
-.controller-input:disabled {
+.form-input:disabled {
   color: #808080;
   border-color: #808080;
   background: #fafafa;
 }
 
-.controller-input:focus,
-.controller-input:active {
+.form-input:focus,
+.form-input:active {
   border-color: #4e75ff;
 }
 
-.controller-button {
+.form-button {
   padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid #4e75ff;
@@ -56,12 +56,12 @@
   transition: all 250ms ease-in-out;
 }
 
-.controller-button:hover,
-.controller-button:focus {
+.form-button:hover,
+.form-button:focus {
   background: #6c8cff;
 }
 
-.controller-button:disabled {
+.form-button:disabled {
   background: #cfcfcf;
   border-color: #cfcfcf;
   color: #989898;
