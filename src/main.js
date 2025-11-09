@@ -2,93 +2,15 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { fetchPhotosByQuery } from './js/pixabay-api';
+import { createGalleryMarkup } from './js/render-functions';
 
-const galleryItems = [
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/14/16/43/rchids-4202820__480.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/14/16/43/rchids-4202820_1280.jpg',
-    description: 'Hokkaido Flower',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/14/22/05/container-4203677__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/14/22/05/container-4203677_1280.jpg',
-    description: 'Container Haulage Freight',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/09/47/beach-4206785__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/09/47/beach-4206785_1280.jpg',
-    description: 'Aerial Beach View',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2016/11/18/16/19/flowers-1835619__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2016/11/18/16/19/flowers-1835619_1280.jpg',
-    description: 'Flower Blooms',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2018/09/13/10/36/mountains-3674334__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2018/09/13/10/36/mountains-3674334_1280.jpg',
-    description: 'Alpine Mountains',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/23/04/landscape-4208571__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/23/04/landscape-4208571_1280.jpg',
-    description: 'Mountain Lake Sailing',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/17/09/27/the-alps-4209272__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/17/09/27/the-alps-4209272_1280.jpg',
-    description: 'Alpine Spring Meadows',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/16/21/10/landscape-4208255__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/16/21/10/landscape-4208255_1280.jpg',
-    description: 'Nature Landscape',
-  },
-  {
-    preview:
-      'https://cdn.pixabay.com/photo/2019/05/17/04/35/lighthouse-4208843__340.jpg',
-    original:
-      'https://cdn.pixabay.com/photo/2019/05/17/04/35/lighthouse-4208843_1280.jpg',
-    description: 'Lighthouse Coast Sea',
-  },
-];
-
-const galleryMarkupCreator = array => {
-  return array.reduce(
-    (acc, { original, preview, description }) =>
-      acc +
-      `
-      <li class="gallery-item">
-        <a class="gallery-link" href=${original}>
-          <img
-            class="gallery-image"
-            src=${preview}
-            alt=${description}
-          />
-        </a>
-      </li>`,
-    ''
-  );
+const refs = {
+  galleryEl: document.querySelector('.gallery'),
+  inputEl: document.querySelector('.controller-input'),
+  formEl: document.querySelector('.controller'),
+  loaderEl: document.querySelector('.loader'),
 };
-
-const galleryRef = document.querySelector('.gallery');
-galleryRef.innerHTML = galleryMarkupCreator(galleryItems);
 
 let gallery = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
@@ -96,3 +18,42 @@ let gallery = new SimpleLightbox('.gallery a', {
   animationSpeed: 250,
   scrollZoom: false,
 });
+
+const toastConfig = {
+  title: 'Error',
+  message:
+    'Sorry, there are no images matching your search query. Please try again!',
+  position: 'topRight',
+};
+
+const toggleLoader = () => refs.loaderEl.classList.toggle('is-active');
+
+const handleClick = e => {
+  e.preventDefault();
+  refs.galleryEl.innerHTML = '';
+  toggleLoader();
+
+  const q = refs.inputEl.value.trim();
+  refs.inputEl.value = '';
+
+  if (q.length === 0) {
+    iziToast.error(toastConfig);
+    toggleLoader();
+    return;
+  }
+
+  fetchPhotosByQuery(q)
+    .then(data => {
+      if (data.hits.length === 0) throw new Error(message);
+
+      refs.galleryEl.innerHTML = createGalleryMarkup(data.hits);
+      gallery.refresh();
+    })
+    .catch(err => {
+      iziToast.error(toastConfig);
+      console.dir(err);
+    })
+    .finally(() => toggleLoader());
+};
+
+refs.formEl.addEventListener('submit', handleClick);
